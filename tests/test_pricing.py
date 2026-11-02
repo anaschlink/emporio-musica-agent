@@ -9,6 +9,8 @@ from emporio.pricing import installments, price_info, availability, active_promo
     (150, (3, Decimal("50.00"))),
     (120, (2, Decimal("60.00"))),
     (49, (1, Decimal("49.00"))),
+    (600, (6, Decimal("100.00"))),
+    (700, (7, Decimal("100.00"))),
 ])
 
 def test_installments(price, expected):
