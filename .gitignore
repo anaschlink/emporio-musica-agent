@@ -1,0 +1,34 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# Virtual environment
+.venv/
+venv/
+
+# Environment variables and secrets
+.env
+.env.*
+
+# Keep the example configuration
+!.env.example
+
+# Test artifacts
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Application data
+sessions/
+escalations.jsonl
+
+# Generated scenario results
+scenarios/results/
+
+# IDE
+.vscode/
+.idea/
+
+# Local development notes
+PLANO_DESENVOLVIMENTO.md

@@ -1,0 +1,6 @@
+openai
+pydantic
+pandas
+python-dotenv
+pytest
+tzdata
