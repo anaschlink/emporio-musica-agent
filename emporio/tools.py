@@ -54,7 +54,7 @@ def _is_available(row) -> bool:
 
 def search_products(store: Store, query: str | None = None, category: str | None = None,min_price: float | 
                     None = None, max_price: float | None = None,limit: int = 5) -> dict:
-    limit = max(1, min(int(limit), 5))
+    limit = 5 if limit is None else max(1, min(int(limit), 5))
     items = []
     for _, row in store.products.iterrows():
         if not _is_available(row):
