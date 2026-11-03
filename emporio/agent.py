@@ -344,6 +344,9 @@ class Agent:
             completion = self._call_model(messages, allow_tools=allow_tools)
             message = completion.choices[0].message
 
+            if not allow_tools and message.tool_calls:
+                return self._finish(FALLBACK_LOOP, escalated)
+
             if allow_tools and message.tool_calls:
                 messages.append({
                     "role": "assistant",
