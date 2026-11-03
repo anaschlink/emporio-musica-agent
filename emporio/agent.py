@@ -67,7 +67,6 @@ TOOL_SCHEMAS = [
                 "type": "object",
                 "properties": {
                     "query": {"type": ["string", "null"]},
-                    "category": {"type": ["string", "null"]},
                     "min_price": {"type": ["number", "null"]},
                     "max_price": {"type": ["number", "null"]},
                     "limit": {"type": "integer", "minimum": 1, "maximum": 5},
@@ -175,6 +174,7 @@ class Agent:
         self.policy_mode = policy_mode
         self.model = model or os.getenv("LLM_MODEL", "qwen3:4b")
         self.max_history_messages = max_history_messages
+        self.model = model or os.getenv("LLM_MODEL", "qwen3:4b-instruct")
 
         self.client = OpenAI(
             base_url=base_url or os.getenv(
