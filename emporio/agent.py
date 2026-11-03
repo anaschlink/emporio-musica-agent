@@ -20,6 +20,7 @@ from emporio.tools import (
     get_order_status,
     get_product,
     search_products,
+    search_promotions
 )
 
 logger = logging.getLogger(__name__)
@@ -70,6 +71,26 @@ TOOL_SCHEMAS = [
                     "min_price": {"type": ["number", "null"]},
                     "max_price": {"type": ["number", "null"]},
                     "limit": {"type": "integer", "minimum": 1, "maximum": 6},
+                },
+                "required": [],
+                "additionalProperties": False,
+            },
+        },
+    },
+
+    {
+        "type": "function",
+        "function": {
+            "name": "search_promotions",
+            "description": (
+                "Search all active product promotions in the store, "
+                "optionally filtered by category. Use this for questions "
+                "about active promotions. Returns all matching products."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "category": {"type": ["string", "null"]},
                 },
                 "required": [],
                 "additionalProperties": False,
@@ -197,7 +218,10 @@ class Agent:
     def _tool_call(self, name: str, arguments: dict) -> dict:
         if name == "search_products":
             return search_products(self.store, **arguments)
-
+        
+        if name == "search_promotions":
+            return search_promotions(self.store, **arguments)
+        
         if name == "get_product":
             return get_product(self.store, **arguments)
 

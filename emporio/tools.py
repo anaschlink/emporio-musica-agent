@@ -87,6 +87,36 @@ def search_products(store: Store, query: str | None = None, category: str | None
     items.sort(key=lambda v: v["price_brl"])
     return {"total_matches": len(items), "items": items[:limit]}
 
+def search_promotions(store: Store, category: str | None = None) -> dict:
+    """Search all active promotions, optionally filtered by product category."""
+    active_ids = store.promotions.loc[
+        store.promotions["is_active"], "product_id"
+    ].tolist()
+    if category and not any(
+        _category_matches(category, name)
+        for name in store.categories["name"]
+    ):
+        return {
+            "error": "unknown_category",
+            "category": category,
+            "available_categories": store.categories["name"].tolist(),
+        }
+    products = store.products[
+        store.products["product_id"].isin(active_ids)
+    ]
+    items = []
+    for _, row in products.iterrows():
+        if not _is_available(row):
+            continue
+        cat = _category_name(store, row["category_id"]) or ""
+        if category and not _category_matches(category, cat):
+            continue
+        item = _view(store, row)
+        if item["promo"] is not None:
+            items.append(item)
+    items.sort(key=lambda item: item["price_brl"])
+    return {"total_matches": len(items), "items": items}
+
 
 def _alternatives(store: Store, row, n: int = 3) -> list[dict]:
     p = store.products
@@ -178,6 +208,8 @@ def get_order_status(store: Store, order_id, email_or_phone: str,
             "days_since_estimated_delivery": days,
             "overdue": bool(days is not None and days > 0),
             "tracking_code": tracking}
+
+
 
 def escalate_to_human(kind: str, summary: str, contact: str | None = None,
                       path: Path = ESCALATIONS_PATH) -> dict:

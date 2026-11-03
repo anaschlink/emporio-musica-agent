@@ -5,7 +5,7 @@ import pytest
 
 from emporio.data_loader import load_store
 from emporio.pricing import availability
-from emporio.tools import (escalate_to_human, get_order_status, get_product,search_products, _category_matches)
+from emporio.tools import (escalate_to_human, get_order_status, get_product,search_products, _category_matches, search_promotions)
 
 S = load_store()
 
@@ -27,6 +27,34 @@ def test_search_returns_only_available_and_hides_stock():
         assert availability(row.status, int(row.stock_quantity))[0]
         assert it["price_brl"] <= 1000
         assert "stock_quantity" not in it
+
+def test_search_promotions_returns_all_active_guitars():
+    result = search_promotions(S, category="violões")
+
+    assert result["total_matches"] == 2
+
+    ids = {item["product_id"] for item in result["items"]}
+    assert ids == {90, 94}
+
+    discounts = {
+        item["product_id"]: item["promo"]["discount_pct"]
+        for item in result["items"]
+    }
+    assert discounts == {90: 18, 94: 8}
+
+
+def test_search_promotions_excludes_inactive_promotions():
+    result = search_promotions(S, category="violões")
+
+    for item in result["items"]:
+        assert item["promo"] is not None
+
+
+def test_search_promotions_unknown_category():
+    result = search_promotions(S, category="xyzzy")
+
+    assert result["error"] == "unknown_category"
+    assert "items" not in result
 
 
 def test_get_product_unavailable_has_reason_and_alternatives():
