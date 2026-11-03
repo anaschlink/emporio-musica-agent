@@ -172,7 +172,6 @@ class Agent:
         self.store = store
         self.policies = policies
         self.policy_mode = policy_mode
-        self.model = model or os.getenv("LLM_MODEL", "qwen3:4b")
         self.max_history_messages = max_history_messages
         self.model = model or os.getenv("LLM_MODEL", "qwen3:4b-instruct")
 
