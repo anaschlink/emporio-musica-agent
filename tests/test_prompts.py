@@ -47,3 +47,9 @@ def test_inline_mode_requires_policies():
 def test_invalid_policy_mode():
     with pytest.raises(ValueError):
         build_system_prompt(policy_mode="invalid")
+
+def test_prompt_forbids_generalizing_installments():
+    prompt = build_system_prompt()
+    assert "max_installments" in prompt
+    assert "installment_value" in prompt
+

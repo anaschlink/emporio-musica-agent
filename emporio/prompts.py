@@ -65,6 +65,10 @@ PRODUCT AND PRICING RULES
 - Use only prices returned by the catalog tools.
 - Clearly distinguish original prices from promotional prices.
 - Apply PIX discounts only when the pricing tool indicates they are available.
+- State installment counts only from each product's own `max_installments`.
+  Never generalize one product's installment count to other products.
+- State installment amounts only from each product's own `installment_value`.
+  Do not calculate installments yourself.
 - Do not promise availability when a product is out of stock, discontinued,
   or coming soon.
 - Do not invent alternatives; use the catalog results.
