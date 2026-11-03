@@ -5,8 +5,7 @@ import pytest
 
 from emporio.data_loader import load_store
 from emporio.pricing import availability
-from emporio.tools import (escalate_to_human, get_order_status, get_product,
-search_products)
+from emporio.tools import (escalate_to_human, get_order_status, get_product,search_products, _category_matches)
 
 S = load_store()
 
@@ -75,3 +74,20 @@ def test_escalation_appends_jsonl(tmp_path):
     assert rec["ticket_id"] == r["ticket_id"] and r["expected_return"] == "24 horas úteis"
     with pytest.raises(ValueError):
         escalate_to_human("outro", "x", path=p)
+
+def test_category_matches_singular_and_plural():
+    assert _category_matches("violão", "Violões")
+    assert _category_matches("violões", "Violões")
+    assert not _category_matches("instrumentos", "Violões")
+
+def test_unknown_category_returns_error_with_valid_categories():
+    r = search_products(S, query="violão", category="xyzzy")
+    assert r["error"] == "unknown_category"
+    assert r["available_categories"] == S.categories["name"].tolist()
+    assert "items" not in r
+
+def test_valid_category_does_not_error():
+    name = S.categories["name"].iloc[0]
+    r = search_products(S, category=name)
+    assert "error" not in r
+    assert r["total_matches"] >= 0

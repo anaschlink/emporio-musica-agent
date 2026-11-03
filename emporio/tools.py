@@ -35,6 +35,9 @@ def _stem(tok: str) -> str:
 def _tokens(text: str) -> list[str]:
     return [_stem(t) for t in _norm(text).replace("-", " ").split() if t]
 
+def _category_matches(category: str, cat_name: str) -> bool:
+    cat_tokens = _tokens(cat_name)
+    return all(t in cat_tokens for t in _tokens(category))
 
 def _category_name(store: Store, category_id) -> str | None:
     c = store.categories.loc[store.categories.category_id == category_id, "name"]
@@ -56,6 +59,16 @@ def search_products(store: Store, query: str | None = None, category: str | None
                     None = None, max_price: float | None = None,limit: int = 5) -> dict:
     limit = 5 if limit is None else max(1, min(int(limit), 5))
     items = []
+
+    if category and not any(
+        _category_matches(category, name) for name in store.categories["name"]
+    ):
+        return {
+            "error": "unknown_category",
+            "category": category,
+            "available_categories": store.categories["name"].tolist(),
+            "hint": "Retry with a valid category, or omit it and use query."
+        }
     for _, row in store.products.iterrows():
         if not _is_available(row):
             continue
@@ -63,7 +76,7 @@ def search_products(store: Store, query: str | None = None, category: str | None
         hay = _norm(f'{row["name"]} {row["description"]} {cat}').replace("-", " ").split()
         if query and not all(any(w.startswith(t) for w in hay) for t in _tokens(query)):
             continue
-        if category and _norm(category) not in _norm(cat):
+        if category and not _category_matches(category, cat):
             continue
         v = _view(store, row)
         if min_price is not None and v["price_brl"] < min_price:
