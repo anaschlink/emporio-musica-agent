@@ -56,8 +56,8 @@ def _is_available(row) -> bool:
 
 
 def search_products(store: Store, query: str | None = None, category: str | None = None,min_price: float | 
-                    None = None, max_price: float | None = None,limit: int = 5) -> dict:
-    limit = 5 if limit is None else max(1, min(int(limit), 5))
+                    None = None, max_price: float | None = None,limit: int = 6) -> dict:
+    limit = 6 if limit is None else max(1, min(int(limit), 6))
     items = []
 
     if category and not any(
@@ -154,18 +154,30 @@ def get_order_status(store: Store, order_id, email_or_phone: str,
               "quantity": int(r.quantity)}
              for r in store.order_items[store.order_items.order_id == oid].itertuples()]
 
+    ref_date = as_of or today()
     est = o["estimated_delivery"]
     est = None if pd.isna(est) else est
     pending = o["status"] in {"pending", "confirmed", "shipped"}
-    days = (as_of or today()).toordinal() - est.toordinal() if (est and pending) else None
+    days = ref_date.toordinal() - est.toordinal() if (est and pending) else None
+
+    order_date = o["order_date"]
+    order_date = None if pd.isna(order_date) else order_date
+    days_since_order = (
+        ref_date.toordinal() - order_date.toordinal() if order_date else None
+    )
+
     tracking = None if pd.isna(o["tracking_code"]) else o["tracking_code"]
     return {"order_id": oid, "status": o["status"], "items": items,
             "total_brl": float(o["total_brl"]), "payment_method": o["payment_method"],
+            "order_date": order_date.isoformat() if order_date else None,
+            "days_since_order": days_since_order,
+            "within_defect_window_30d": (
+                days_since_order <= 30 if days_since_order is not None else None
+            ),
             "estimated_delivery": est.isoformat() if est else None,
             "days_since_estimated_delivery": days,
             "overdue": bool(days is not None and days > 0),
             "tracking_code": tracking}
-
 
 def escalate_to_human(kind: str, summary: str, contact: str | None = None,
                       path: Path = ESCALATIONS_PATH) -> dict:

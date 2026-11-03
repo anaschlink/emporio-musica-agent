@@ -91,3 +91,10 @@ def test_valid_category_does_not_error():
     r = search_products(S, category=name)
     assert "error" not in r
     assert r["total_matches"] >= 0
+
+def test_order_exposes_days_since_order():
+    oid = _first_order("delivered")
+    r = get_order_status(S, oid, _customer_of(oid).email, as_of=date(2026, 11, 2))
+    assert r["days_since_order"] > 30
+    assert r["within_defect_window_30d"] is False
+    assert r["order_date"] is not None
