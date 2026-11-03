@@ -69,7 +69,7 @@ TOOL_SCHEMAS = [
                     "query": {"type": ["string", "null"]},
                     "min_price": {"type": ["number", "null"]},
                     "max_price": {"type": ["number", "null"]},
-                    "limit": {"type": "integer", "minimum": 1, "maximum": 5},
+                    "limit": {"type": "integer", "minimum": 1, "maximum": 6},
                 },
                 "required": [],
                 "additionalProperties": False,
